@@ -1,0 +1,17 @@
+.gradle/
+
+.idea/
+
+HotKitchen/Access rights
+HotKitchen/Data management/
+HotKitchen/Profile management/
+HotKitchen/SignIn - SingUp/
+HotKitchen/Token usage/
+HotKitchen/lesson-info.yaml
+HotKitchen/task/test/
+build/
+course-info.yaml
+course-remote-info.yaml
+gradle/
+gradlew
+gradlew.bat

@@ -1,0 +1,12 @@
+# Do not move or rename this file.
+# It must remain at the root of the resources directory as 'application.yaml' for testing.
+
+# If you use environment variables, ensure they are available to the system environment,
+# not limited to an IDE run configuration (e.g. IntelliJ).
+
+ktor:
+  deployment:
+    port: 28852
+  application:
+    modules:
+      - hotkitchen.ApplicationKt.module
