@@ -61,8 +61,6 @@ GRANT SELECT, INSERT, UPDATE ON TABLE users TO test;
 
 To stop the database service:
 ```
-pg_ctl stop -D <your-db-name>
-
 brew services stop postgresql
 ```
 
