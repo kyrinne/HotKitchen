@@ -6,22 +6,24 @@ Installation with brew:
 ```
 brew install postgres
 ```
+This will also create a default database cluster in `/opt/homebrew/var/postgresql@18`.
 
 To start postgresql@18 now and restart at login:
 ```
 brew services start postgresql@18
 ```
 
-Create your database:
+DO NOT run `initdb` as this will create a database cluster rather than a database!
+
 ```
-initdb <your-db-name>
+initdb <your-db-cluster-name>
 ```
 
-To start your database:
+Instead, create your database:
+
 ```
-pg_ctl -D <your-db-name> -l logfile start
+createdb <your-db-name>
 ```
-If this doesn't work, check the logfile. You might need to set a different port in `<your-db-name>/postgresql.conf`.
 
 ## Adding Tables to a Database
 
@@ -37,16 +39,31 @@ Creating a table:
 CREATE TABLE users (
     email varchar(100),
     password varchar(100),
-    type varchar(50)
+    userType varchar(50)
 );
 ```
 
+Creating a user for the app to use to log in:
+
+```postgresql
+CREATE USER test WITH
+    PASSWORD 'superSecretPassword'
+```
+(When using `CREATE ROLE`, `LOGIN` needs to be added.)
+
+Grant the user access to the database (adjust permissions as required):
+
+```postgresql
+GRANT SELECT, INSERT, UPDATE ON TABLE users TO test; 
+```
 
 ## Clean Up
 
 To stop the database service:
 ```
 pg_ctl stop -D <your-db-name>
+
+brew services stop postgresql
 ```
 
 To fully uninstall, first stop the database service. Then delete the database directory.
@@ -59,9 +76,7 @@ brew cleanup
 This will still leave remnants. If you want to wipe everything (all other databases, too!), proceed with these commands:
 
 ```
-rm -rf /usr/local/var/postgres
-rm /usr/local/var/log/postgres.log
-rm -f ~/.psqlrc ~/.psql_history
+rm -rf /opt/homebrew/var/postgresql@18
 ```
 
 At this stage, it might be a good idea to restart your computer before trying again!
