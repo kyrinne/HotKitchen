@@ -3,11 +3,12 @@ package hotkitchen.db
 import hotkitchen.model.User
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-object UserTable : IntIdTable("users") {
+object UserTable : Table("users") {
     val email = varchar("email", 100)
     val userType = varchar("usertype", 50)
     val password = varchar("password", 50)
