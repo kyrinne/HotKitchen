@@ -36,7 +36,7 @@ fun Application.module() {
         })
     }
     install(Authentication) {
-        jwt {
+        jwt("auth-jwt") {
             realm = myRealm
             verifier(
                 JWT
@@ -45,17 +45,17 @@ fun Application.module() {
                     .withIssuer(issuer)
                     .build()
             )
-            // TODO
+            // TODO: validation here and/or in the endpoint?
             validate { credential ->
-                if (credential.payload.getClaim("username").asString() != "") {
+                if (credential.payload.getClaim("email").asString() != "") {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
             }
             // TODO
-            challenge { defaultScheme, realm ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+            challenge { _, _ ->
+                call.respond(HttpStatusCode.Unauthorized)
             }
 
         }

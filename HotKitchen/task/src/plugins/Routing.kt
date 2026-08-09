@@ -7,17 +7,16 @@ import hotkitchen.db.UserDaoImpl
 import hotkitchen.issuer
 import hotkitchen.model.User
 import hotkitchen.secret
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
-import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.util.Date
-import kotlin.collections.hashMapOf
 
 // TODO: clean up - figure out a good file structure
 @Serializable
@@ -26,18 +25,21 @@ data class Login(val email: String, val password: String)
 @Serializable
 data class Token(val token: String)
 
-// TODO: username, email, ...?
-fun createJWT(username: String): String? = JWT.create()
+fun createJWT(email: String, userType: String): String? = JWT.create()
     .withAudience(audience)
     .withIssuer(issuer)
-    .withClaim("username", username)
+    .withClaim("email", email)
+    .withClaim("userType", userType)
     .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
     .sign(Algorithm.HMAC256(secret))
 
+// TODO: revisit rules after the course is finished
 /**
- * [email] is valid if there is a prefix and a domain
+ * [email] is valid if there is a prefix and a domain; tests require exclusion of '#' even though it's technically valid
  */
-fun validateEmail(email: String): Boolean = email.matches(Regex(".+@.+\\..+"))
+fun validateEmail(email: String): Boolean {
+    return email.matches(Regex("[a-z0-9\\-_]+@([a-z\\-]+\\.)+[a-z]+")) && email.count { it =='@'} == 1
+}
 
 /**
  * [password] is valid if it is at least 6 characters long and contains at least one letter and one number
@@ -72,7 +74,7 @@ fun Application.configureRouting(dao: UserDaoImpl) {
                     }
                     if (validateEmail(user.email) && validatePassword(user.password)) {
                         dao.addUser(email = user.email, userType = user.userType, password = user.password)
-                        val token = createJWT(user.email)!! // TODO
+                        val token = createJWT(user.email, user.userType)!! // TODO
                         call.respond(Token(token))
                     }
                 }
@@ -84,15 +86,32 @@ fun Application.configureRouting(dao: UserDaoImpl) {
         post("/signin") {
             try {
                 val (email, password) = call.receive<Login>()
-                if (dao.allUsers().singleOrNull() { it.email == email && it.password == password } != null) {
-                    val token = createJWT(email)!! // TODO
+                val user: User? = dao.allUsers().singleOrNull() { it.email == email && it.password == password }
+                if (user != null) {
+                    val token = createJWT(email, user.userType)!! // TODO
                     call.respond(Token(token))
                 } else {
-                    call.respond(HttpStatusCode.Forbidden, Status("Authorization failed"))
+                    call.respond(HttpStatusCode.Forbidden, Status("Invalid email or password"))
                 }
             } catch (_: Throwable) {
-                call.respond(HttpStatusCode.Forbidden, Status("Authorization failed"))
+                call.respond(HttpStatusCode.Forbidden, Status("Invalid email or password"))
                 // call.respond(HttpStatusCode.BadRequest)
+            }
+        }
+        authenticate("auth-jwt") {
+            get("/validate") {
+                val principal: JWTPrincipal? = call.principal<JWTPrincipal>()
+                if (principal != null) {
+                    val email: String? = principal.payload.getClaim("email").asString()
+                    val userType: String? = principal.payload.getClaim("userType").asString()
+                    if (email != null && userType != null) {
+                        call.respondText("Hello, $userType $email")
+                    } else {
+                        throw IllegalStateException("Email ($email) or user type ($userType) is null!")
+                    }
+                } else {
+                    call.respond(HttpStatusCode.Forbidden)
+                }
             }
         }
         get("/users") {
