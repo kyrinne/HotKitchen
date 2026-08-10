@@ -27,7 +27,7 @@ createdb <your-db-name>
 
 ## Adding Tables to a Database
 
-Enter interactive mode with `psql` (note the lowercase `d` now):
+Enter interactive mode with `psql`:
 
 ```
 psql -d <your-db-name>
@@ -41,6 +41,15 @@ CREATE TABLE users (
     password varchar(100),
     userType varchar(50)
 );
+```
+
+Modifying a table:
+
+```postgresql
+ALTER TABLE users
+ADD COLUMN name varchar(100),
+ADD COLUMN phone varchar(30),
+ADD COLUMN address varchar(200);
 ```
 
 Creating a user for the app to use to log in:

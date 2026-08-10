@@ -113,6 +113,43 @@ fun Application.configureRouting(dao: UserDaoImpl) {
                     call.respond(HttpStatusCode.Forbidden)
                 }
             }
+            // TODO: Fetches the complete profile information for the authenticated user.
+            get("/me") {
+                /*
+                {
+                    "name": "Goose",
+                    "userType": "client",
+                    "phone": "+79999999999",
+                    "email": "example@gmail.com",
+                    "address": "address"
+                }
+                 */
+                // TODO: 400 Bad Request if the profile hasn't been created yet
+
+            }
+            // TODO: Creates or updates the user's profile information.
+            put("/me") {
+                /*
+                Request Body: A JSON object with the user's full profile.
+                Important Constraint: The email field in the request body must match the email associated with the JWT.
+                You should not change the email.
+
+                Response: Same as GET
+                 */
+
+                // TODO: 400 Bad Request: This occurs if the email in the request body does not match the email in the authentication token.
+
+            }
+            // TODO: Deletes the user's entire account, including both their profile and their credentials.
+            delete("/me") {
+
+                /*
+                Successful Response (200 OK): Indicates that the user account was successfully deleted. No response body is required.
+
+                Failure Response (404 Not Found): This occurs if the user account does not exist (for example, if you try to delete the same user twice)
+                 */
+            }
+
         }
         get("/users") {
             val users = dao.allUsers()
