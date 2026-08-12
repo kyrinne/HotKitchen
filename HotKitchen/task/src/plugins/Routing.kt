@@ -6,6 +6,7 @@ import hotkitchen.audience
 import hotkitchen.db.UserDaoImpl
 import hotkitchen.issuer
 import hotkitchen.model.User
+import hotkitchen.model.UserProfile
 import hotkitchen.secret
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
@@ -38,7 +39,7 @@ fun createJWT(email: String, userType: String): String? = JWT.create()
  * [email] is valid if there is a prefix and a domain; tests require exclusion of '#' even though it's technically valid
  */
 fun validateEmail(email: String): Boolean {
-    return email.matches(Regex("[a-z0-9\\-_]+@([a-z\\-]+\\.)+[a-z]+")) && email.count { it =='@'} == 1
+    return email.matches(Regex("[a-z0-9\\-_]+@([a-z\\-]+\\.)+[a-z]+")) && email.count { it == '@' } == 1
 }
 
 /**
@@ -113,41 +114,54 @@ fun Application.configureRouting(dao: UserDaoImpl) {
                     call.respond(HttpStatusCode.Forbidden)
                 }
             }
-            // TODO: Fetches the complete profile information for the authenticated user.
             get("/me") {
-                /*
-                {
-                    "name": "Goose",
-                    "userType": "client",
-                    "phone": "+79999999999",
-                    "email": "example@gmail.com",
-                    "address": "address"
+                val principal: JWTPrincipal? = call.principal<JWTPrincipal>()
+                if (principal != null) {
+                    val email: String? = principal.payload.getClaim("email").asString()
+                    val profile = email?.let { email -> dao.getProfile(email) }
+                    if (profile != null) {
+                        call.respond(profile)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                } else {
+                    call.respond(HttpStatusCode.BadRequest) // TODO: forbidden?
                 }
-                 */
-                // TODO: 400 Bad Request if the profile hasn't been created yet
-
             }
             // TODO: Creates or updates the user's profile information.
             put("/me") {
-                /*
-                Request Body: A JSON object with the user's full profile.
-                Important Constraint: The email field in the request body must match the email associated with the JWT.
-                You should not change the email.
-
-                Response: Same as GET
-                 */
-
-                // TODO: 400 Bad Request: This occurs if the email in the request body does not match the email in the authentication token.
-
+                val principal: JWTPrincipal? = call.principal<JWTPrincipal>()
+                val email = principal?.payload?.getClaim("email")?.asString()
+                try {
+                    val profile = call.receive<UserProfile>()
+                    if (email != null && profile.email == email) {
+                        val updatedProfile = dao.updateProfile(profile)
+                        if (updatedProfile != null) {
+                            call.respond(updatedProfile)
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest)
+                        }
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                } catch (_: Throwable) {
+                    call.respond(HttpStatusCode.BadRequest)
+                }
             }
             // TODO: Deletes the user's entire account, including both their profile and their credentials.
             delete("/me") {
-
-                /*
-                Successful Response (200 OK): Indicates that the user account was successfully deleted. No response body is required.
-
-                Failure Response (404 Not Found): This occurs if the user account does not exist (for example, if you try to delete the same user twice)
-                 */
+                val principal: JWTPrincipal? = call.principal<JWTPrincipal>()
+                val email = principal?.payload?.getClaim("email")?.asString()
+                if (email != null) {
+                    val deleted = dao.deleteUser(email)
+                    if (deleted) {
+                        call.respond(HttpStatusCode.OK)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
+                } else {
+                    call.respond(HttpStatusCode.NotFound) // TODO: bad request
+                }
             }
 
         }
