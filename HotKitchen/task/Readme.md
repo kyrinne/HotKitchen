@@ -33,13 +33,40 @@ Enter interactive mode with `psql`:
 psql -d <your-db-name>
 ```
 
-Creating a table:
+Creating a simple table:
 
 ```postgresql
 CREATE TABLE users (
     email varchar(100),
     password varchar(100),
     userType varchar(50)
+);
+```
+Creating tables with a n:n relationship, joined via a third helper table:
+
+```postgresql
+CREATE TABLE categories(
+    categoryId INTEGER PRIMARY KEY,
+    title varchar(200),
+    description varchar(2000)
+);
+```
+
+```postgresql
+CREATE TABLE meals(
+    mealId     INTEGER PRIMARY KEY,
+    title      VARCHAR(100),
+    price      NUMERIC(10, 2),
+    imageUrl   VARCHAR(300),
+    categoryId INTEGER
+);
+```
+
+```postgresql
+CREATE TABLE meal_category(
+    mealId INTEGER REFERENCES meals ON DELETE CASCADE,
+    categoryId INTEGER REFERENCES categories ON DELETE CASCADE,
+    UNIQUE (mealId, categoryId)
 );
 ```
 
