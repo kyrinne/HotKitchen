@@ -1,15 +1,14 @@
-package hotkitchen
-
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import hotkitchen.db.UserDaoImpl
-import hotkitchen.plugins.configureRouting
+import db.UserDaoImpl
+import plugins.configureRouting
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
+import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.respond
 import kotlinx.serialization.json.Json
@@ -23,7 +22,7 @@ const val myRealm = "Access to hot kitchen"
 
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    EngineMain.main(args)
 
 }
 

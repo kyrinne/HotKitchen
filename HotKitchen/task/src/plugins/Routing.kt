@@ -1,13 +1,10 @@
-package hotkitchen.plugins
+package plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import hotkitchen.audience
-import hotkitchen.db.UserDaoImpl
-import hotkitchen.issuer
-import hotkitchen.model.User
-import hotkitchen.model.UserProfile
-import hotkitchen.secret
+import db.UserDaoImpl
+import model.User
+import model.UserProfile
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate

@@ -1,11 +1,11 @@
-package hotkitchen.db
+package db
 
-import hotkitchen.db.UserTable.address
-import hotkitchen.db.UserTable.name
-import hotkitchen.db.UserTable.phone
-import hotkitchen.db.UserTable.userType
-import hotkitchen.model.User
-import hotkitchen.model.UserProfile
+import db.UserTable.address
+import db.UserTable.name
+import db.UserTable.phone
+import db.UserTable.userType
+import model.User
+import model.UserProfile
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table

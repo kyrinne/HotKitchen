@@ -1,4 +1,4 @@
-package hotkitchen.model
+package model
 
 import kotlinx.serialization.Serializable
 
