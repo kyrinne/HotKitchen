@@ -33,7 +33,7 @@ Enter interactive mode with `psql`:
 psql -d <your-db-name>
 ```
 
-Creating a simple table:
+### Creating a simple table:
 
 ```postgresql
 CREATE TABLE users (
@@ -42,7 +42,7 @@ CREATE TABLE users (
     userType varchar(50)
 );
 ```
-Creating tables with a n:n relationship, joined via a third helper table:
+### Creating tables with a n:n relationship, joined via a third helper table:
 
 ```postgresql
 CREATE TABLE categories(
@@ -70,7 +70,7 @@ CREATE TABLE meal_category(
 );
 ```
 
-Modifying a table:
+## Modifying a table:
 
 ```postgresql
 ALTER TABLE users
@@ -79,7 +79,7 @@ ADD COLUMN phone varchar(30),
 ADD COLUMN address varchar(200);
 ```
 
-Creating a user for the app to use to log in:
+## Creating a user for the app to use to log in:
 
 ```postgresql
 CREATE USER test WITH
